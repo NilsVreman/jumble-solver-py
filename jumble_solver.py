@@ -137,7 +137,7 @@ def read_file_into_word_list(file_path: str) -> List[str]:
         with open(file_path, "r") as file:
             return file.read().splitlines()
     except IOError:
-        _terminate("File \"{}\" not found in path".format(file_path))
+        _terminate(f"File '{file_path}' not found in path")
 
 
 def download_word_list(url: str, target_path: str):
@@ -146,14 +146,16 @@ def download_word_list(url: str, target_path: str):
         return
 
     try:
-        with requests.get(url, stream=True) as response:
+        with requests.get(url, stream=True, timeout=5) as response:
             # Open stream to url and raise error if something failed
             response.raise_for_status()
             words_data = response.text
     except requests.exceptions.ConnectionError:
-        _terminate("Couldn't open link to webpage \"{}\"".format(url))
+        _terminate(f"Couldn't open link to webpage '{url}'")
     except requests.exceptions.HTTPError:
-        _terminate("Webpage \"{}\" doesn't exist".format(url))
+        _terminate(f"Webpage '{url}' doesn't exist")
+    except requests.exceptions.Timeout:
+        _terminate(f"Connection to webpage '{url}' timed out")
 
     with open(target_path, "w") as file:
         file.write(words_data)
