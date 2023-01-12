@@ -4,13 +4,39 @@ import requests
 import os
 import math # NOTE: maybe remove
 
-class Jumbler:
-    """
-    Jumbler: Finds sub- and full anagrams of words.
+class AnagramFinder:
+    """ AnagramFinder: Python implementation for a jumble solver (anagram finder).
+                       Finds sub- and full anagrams of words.
+
+    DETAILED DESCRIPTION:
+    The AnagramFinder class takes a word list as constructor input.
+    Each word in the word list is converted to a prime number multiplication,
+    where each character represent a unique prime number, e.g., 'a' = 2, 'b' = 3, 'c' = 5, etc.
+    With this representation, an anagram of a `word` is any `other_word` where all
+    prime number factors are represented in the original `word`.
+
+    COMPLEXITY ANALYSIS:
+    n: Number of words in word list
+    m: Average word length
+    * Parsing word list:
+        + Reading all words: O(n)
+        + Convert a word to nbr: O(m)
+        = Total: O(n*m)
+    * Finding all anagrams:
+        + Convert the searched word to nbr: O(m)
+        + Iterate parsed data: O(n)
+        = Total: O(n+m) = O(n)
+
+    EXAMPLE:
+    word              = "dog"   # number representation: 'd' = 7, 'o' = 47, 'g' = 17
+    word_as_nbr       = 7*47*17
+    other_word        = "go"
+    other_word_as_nbr = 17*47
+    other_word_is_sub_anagram = word_as_nbr % other_word_as_nbr == 0 # True
     """
 
     def __init__(self, word_list: List[str]):
-        """
+        """ CLASS PARAMETERS:
         __word_to_prime_mapper: An object that maps a word into a number equivalent
         _word_dict:             A set of words to use for faster lookups
         _found_anagrams:        A dictionary of already looked up words and their corresponding anagrams
@@ -26,10 +52,7 @@ class Jumbler:
         self._found_anagrams: Dict[str, List[str]] = dict()
 
     def find_sub_and_full_anagrams(self, word: str) -> List[str]:
-        """
-        Computes all anagrams and subanagrams of the input 'word' and returns them as a list.
-        """
-
+        """ Computes all anagrams and subanagrams of the input 'word' and returns them as a list. """
         if not word.isalpha():
             print("Words must contain nothing but letters!")
             _terminate_execution()
@@ -52,13 +75,13 @@ class Jumbler:
         return all_anagrams
 
     class __WordToNumberMapper:
-    
-        """
-        __WordToNumberMapper: TODO
+        """ __WordToNumberMapper: Maps every character in a word to a prime number.
+                                  A words's character configuration is therefore
+                                  represented as a prime number multiplication.
         """
     
         def __init__(self):
-            """
+            """ CLASS PARAMETERS:
             _prime_dict: A dict of (char => prime numbers) representing the
                          prime number representation of each character
             """
@@ -154,8 +177,8 @@ def main():
     file_path, search_word = _validate_cmd_line_input()
     download_word_list("http://www.mieliestronk.com/corncob_lowercase.txt", file_path)
     word_list: List[str] = read_file_into_word_list(file_path)
-    jumbler: Jumbler = Jumbler(word_list)
-    anagrams: List[str] = jumbler.find_sub_and_full_anagrams(search_word)
+    anagram_finder: AnagramFinder = AnagramFinder(word_list)
+    anagrams: List[str] = anagram_finder.find_sub_and_full_anagrams(search_word)
     for anagram in anagrams:
         print(anagram)
 
