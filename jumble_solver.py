@@ -54,8 +54,7 @@ class AnagramFinder:
     def find_sub_and_full_anagrams(self, word: str) -> List[str]:
         """ Computes all anagrams and subanagrams of the input 'word' and returns them as a list. """
         if not word.isalpha():
-            print("Words must contain nothing but letters!")
-            _terminate_execution()
+            _terminate("Words must contain nothing but letters!")
 
         if word in self._found_anagrams:
             return self._found_anagrams[word]
@@ -104,16 +103,6 @@ class AnagramFinder:
                     if found_new_prime:
                         primes.append(i)
             return primes
-            
-        #def __list_first_n_primes_sieve(n: int) -> List[int]:
-        #    """ Returns a list of n primes """
-        #    N = int(n*math.log(n) + n*math.log(math.log(n)))
-        #    sieve = [True] * N
-        #    for i in range(3,int(N**0.5)+1, 2):
-        #        if sieve[i]:
-        #            sieve[i*i::2*i] = [False]*((N-i*i-1) // (2*i)+1)
-        #    primes = [2] + [i for i in range(3, N, 2) if sieve[i]]
-        #    return primes[:n]
 
         def map(self, word: str) -> int:
             """ Map a string to the corresponding number representation """
@@ -125,21 +114,14 @@ class AnagramFinder:
         def is_sub_or_full_anagram(self, src_repr: int, cmp_repr: int) -> bool:
             """ Check if cmp_repr is a sub or full anagram of src_repr """
             return src_repr % cmp_repr == 0
-
-        #def is_sub_or_full_anagram_str(self, src_word: str, cmp_word: str) -> bool:
-        #    """ Check if cmp_word is a sub or full anagram of src_word """
-        #    cmp_repr: int = self.map(cmp_word)
-        #    src_repr: int = self.map(src_word)
-        #    return src_repr % cmp_repr == 0
             
 def read_file_into_word_list(file_path: str) -> List[str]:
     """ Read the contents of file_path into a list of words """
     try:
         with open(file_path, "r") as file:
             return file.read().splitlines()
-    except IOError as e:
-        print("File \"{}\" not found in path".format(file_path))
-        _terminate_execution()
+    except IOError:
+        _terminate("File \"{}\" not found in path".format(file_path))
 
 def download_word_list(url: str, target_path: str):
     """ Download the wordlist from url (unless it already exists) """
@@ -152,11 +134,9 @@ def download_word_list(url: str, target_path: str):
             response.raise_for_status()
             words_data = response.text
     except requests.exceptions.ConnectionError:
-        print("Couldn't open link to webpage \"{}\"".format(url))
-        _terminate_execution()
+        _terminate("Couldn't open link to webpage \"{}\"".format(url))
     except requests.exceptions.HTTPError:
-        print("Webpage \"{}\" doesn't exist".format(url))
-        _terminate_execution()
+        _terminate("Webpage \"{}\" doesn't exist".format(url))
 
     with open(target_path, 'w') as file:
         file.write(words_data)
@@ -164,20 +144,19 @@ def download_word_list(url: str, target_path: str):
 
 def _validate_cmd_line_input():
     if len(sys.argv) != 3:
-        print("Wrong number of input arguments!")
-        _terminate_execution()
+        _terminate("Wrong number of input arguments!")
 
     return sys.argv[1], sys.argv[2]
 
-def _terminate_execution():
-    print("Terminating execution")
+def _terminate(msg: str):
+    print(msg)
     sys.exit(0)
 
 def main():
     file_path, search_word = _validate_cmd_line_input()
     download_word_list("http://www.mieliestronk.com/corncob_lowercase.txt", file_path)
     word_list: List[str] = read_file_into_word_list(file_path)
-    anagram_finder: AnagramFinder = AnagramFinder(word_list)
+    anagram_finder = AnagramFinder(word_list)
     anagrams: List[str] = anagram_finder.find_sub_and_full_anagrams(search_word)
     for anagram in anagrams:
         print(anagram)
